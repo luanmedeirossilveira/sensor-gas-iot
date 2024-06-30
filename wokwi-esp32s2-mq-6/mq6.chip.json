@@ -1,0 +1,23 @@
+{
+  "name": "MQ-6",
+  "author": "gp",
+  "pins": [
+    "VCC",
+    "D0",
+    "A0",
+    "GND",
+    "",
+    "",
+    ""
+  ],
+  "controls": [
+    {
+      "id": "intensity",
+      "label": "Intensity",
+      "type": "range",
+      "min": 0,
+      "max": 5,
+      "step": 0.001
+    }
+  ]
+}

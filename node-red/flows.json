@@ -1,0 +1,351 @@
+[
+    {
+        "id": "4190a93b2921dd3d",
+        "type": "tab",
+        "label": "Sensor",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "4d4c6160b0958b9b",
+        "type": "mqtt in",
+        "z": "4190a93b2921dd3d",
+        "name": "",
+        "topic": "topic_sensor_gas",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "1fe335edb70c3f12",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 100,
+        "y": 180,
+        "wires": [
+            [
+                "0b53959bbd29c632",
+                "b1fb7e8ee73d5836"
+            ]
+        ]
+    },
+    {
+        "id": "19347f385fa451e2",
+        "type": "ui_gauge",
+        "z": "4190a93b2921dd3d",
+        "name": "",
+        "group": "8",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Sensor do Nível de GLP",
+        "label": "ppm",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "1000",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "10",
+        "seg2": "100",
+        "diff": false,
+        "className": "",
+        "x": 590,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "0b53959bbd29c632",
+        "type": "function",
+        "z": "4190a93b2921dd3d",
+        "name": "Conversão A0 para ppm",
+        "func": "const analogValue = Number(msg.payload);\nconst Vin = 5.0; // Tensão de alimentação do sensor\nconst Vout = (analogValue / 4095) * Vin; // Valor analógico convertido para tensão\nconst a = 100; // Constante 'a' da equação (ajuste conforme datasheet)\nconst b = -1.5; // Constante 'b' da equação (ajuste conforme datasheet)\nconst ppm = a * Math.pow((Vout / Vin), b);\nmsg.payload = ppm.toFixed(2); // Converte para ppm e arredonda para 2 casas decimais\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 390,
+        "y": 200,
+        "wires": [
+            [
+                "19347f385fa451e2",
+                "7bbf913833e56436",
+                "c0cea78409f32624"
+            ]
+        ]
+    },
+    {
+        "id": "7bbf913833e56436",
+        "type": "debug",
+        "z": "4190a93b2921dd3d",
+        "name": "debug 3",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 620,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "b1fb7e8ee73d5836",
+        "type": "debug",
+        "z": "4190a93b2921dd3d",
+        "name": "debug 4",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 380,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "171c4db059505e0c",
+        "type": "http request",
+        "z": "4190a93b2921dd3d",
+        "name": "",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "http://localhost:8080/api/sensor-data",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 890,
+        "y": 160,
+        "wires": [
+            [
+                "6acc9b860c4a332a"
+            ]
+        ]
+    },
+    {
+        "id": "c0cea78409f32624",
+        "type": "function",
+        "z": "4190a93b2921dd3d",
+        "name": "Estrutura JSON",
+        "func": "msg.headers = {};\nmsg.headers['Content-Type'] = 'application/json';\nmsg.payload = {\n    \"sensorValue\": msg.payload\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 640,
+        "y": 240,
+        "wires": [
+            [
+                "171c4db059505e0c"
+            ]
+        ]
+    },
+    {
+        "id": "6acc9b860c4a332a",
+        "type": "http request",
+        "z": "4190a93b2921dd3d",
+        "name": "",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "http://localhost:8080/api/sensor-data",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 790,
+        "y": 480,
+        "wires": [
+            [
+                "05f52cef267a76d6",
+                "e7f3e45c7dfdab73"
+            ]
+        ]
+    },
+    {
+        "id": "07223a91f01c54e5",
+        "type": "ui_chart",
+        "z": "4190a93b2921dd3d",
+        "name": "",
+        "group": "8",
+        "order": 1,
+        "width": "0",
+        "height": "0",
+        "label": "Gráfico do Nível GLP",
+        "chartType": "line",
+        "legend": "true",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "1000",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": true,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 1300,
+        "y": 420,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "05f52cef267a76d6",
+        "type": "function",
+        "z": "4190a93b2921dd3d",
+        "name": "Lista de Valores GLP",
+        "func": "const dataArray = msg.payload;\nlet processedData = [];\n\nfor (const data of dataArray) {\n    processedData.push({\n        x: data.timestamp,\n        y: data.sensorValue\n    });\n}\n\nmsg.payload = [{\n    \"series\": [\"Nível de GLP\"],\n    \"data\": [processedData],\n    \"labels\": [\"\"]\n}];\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1020,
+        "y": 520,
+        "wires": [
+            [
+                "07223a91f01c54e5",
+                "885cbf1ecd6e4063"
+            ]
+        ]
+    },
+    {
+        "id": "e7f3e45c7dfdab73",
+        "type": "debug",
+        "z": "4190a93b2921dd3d",
+        "name": "debug 5",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 980,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "885cbf1ecd6e4063",
+        "type": "debug",
+        "z": "4190a93b2921dd3d",
+        "name": "debug 6",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1260,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "390dd37dfa587a6b",
+        "type": "function",
+        "z": "4190a93b2921dd3d",
+        "name": "Função para Reiniciar Valor",
+        "func": "msg.payload = 0;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 140,
+        "y": 420,
+        "wires": [
+            [
+                "0b53959bbd29c632"
+            ]
+        ]
+    },
+    {
+        "id": "1fe335edb70c3f12",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "test.mosquitto.org",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "8",
+        "type": "ui_group",
+        "name": "Default",
+        "tab": "9",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "9",
+        "type": "ui_tab",
+        "name": "Home",
+        "icon": "dashboard",
+        "order": 1,
+        "disabled": false,
+        "hidden": false
+    }
+]
